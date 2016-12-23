@@ -1,5 +1,5 @@
 # mysql-dbcompare
-Mysql dbcompare utility (with foreign key fix)
+A fork from official Mysql dbcompare utility (added a foreign key fix)
 
 Requirements
     
