@@ -1,0 +1,463 @@
+'\" t
+.\"     Title: \fBmysqlindexcheck\fR
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 10/03/2013
+.\"    Manual: MySQL Utilities
+.\"    Source: MySQL 1.4.0
+.\"  Language: English
+.\"
+.TH "\FBMYSQLINDEXCHECK\F" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.\" mysqlindexcheck
+.\" utilities: mysqlindexcheck
+.\" scripts
+.SH "NAME"
+mysqlindexcheck \- Identify Potentially Redundant Table Indexes
+.SH "SYNOPSIS"
+.HP \w'\fBmysqlindexcheck\ [\fR\fB\fIoptions\fR\fR\fB]\ \fR\fB\fIdb\fR\fR\fB[\fR\fB\fI:table\fR\fR\fB]\ \&.\&.\&.\fR\ 'u
+\fBmysqlindexcheck [\fR\fB\fIoptions\fR\fR\fB] \fR\fB\fIdb\fR\fR\fB[\fR\fB\fI:table\fR\fR\fB] \&.\&.\&.\fR
+.SH "DESCRIPTION"
+.PP
+This utility reads the indexes for one or more tables and identifies duplicate and potentially redundant indexes\&.
+.PP
+To check all tables in a database, specify only the database name\&. To check a specific table, name the table in
+\fIdb\&.table\fR
+format\&. It is possible to mix database and table names\&.
+.PP
+You can scan tables in any database except the internal databases
+\fBmysql\fR,
+\fBINFORMATION_SCHEMA\fR, and
+\fBperformance_schema\fR\&.
+.PP
+Depending on the index type, the utility applies the following rules to compare indexes (designated as
+idx_a
+and
+idx_b):
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBBTREE\fR
+.sp
+idx_b
+is redundant to
+idx_a
+if and only if the first
+\fIn\fR
+columns in
+idx_b
+also appear in
+idx_a\&. Order and uniqueness count\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBHASH\fR
+.sp
+idx_a
+and
+idx_b
+are duplicates if and only if they contain the same columns in the same order\&. Uniqueness counts\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBSPATIAL\fR
+.sp
+idx_a
+and
+idx_b
+are duplicates if and only if they contain the same column (only one column is permitted)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBFULLTEXT\fR
+.sp
+idx_b
+is redundant to
+idx_a
+if and only if all columns in
+idx_b
+are included in
+idx_a\&. Order counts\&.
+.RE
+.PP
+To see
+\fBDROP\fR
+statements to drop redundant indexes, specify the
+\fB\-\-show\-drops\fR
+option\&. To examine the existing indexes, use the
+\fB\-\-verbose\fR
+option, which prints the equivalent
+\fBCREATE INDEX\fR
+(or
+\fBALTER TABLE\fR
+for primary keys\&.
+.PP
+To display the best or worst nonprimary key indexes for each table, use the
+\fB\-\-best\fR
+or
+\fB\-\-worst\fR
+option\&. This causes the output to show the best or worst indexes from tables with 10 or more rows\&. By default, each option shows five indexes\&. To override that, provide an integer value for the option\&.
+.PP
+To change the format of the index lists displayed for the
+\fB\-\-show\-indexes\fR,
+\fB\-\-best\fR, and
+\fB\-\-worst\fR
+options, use one of the following values with the
+\fB\-\-format\fR
+option:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBgrid\fR
+(default)
+.sp
+Display output in grid or table format like that of the
+\fBmysql\fR
+monitor\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBcsv\fR
+.sp
+Display output in comma\-separated values format\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBtab\fR
+.sp
+Display output in tab\-separated format\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBsql\fR
+.sp
+print SQL statements rather than a list\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBvertical\fR
+.sp
+Display output in single\-column format like that of the
+\eG
+command for the
+\fBmysql\fR
+monitor\&.
+.RE
+.PP
+Note: The
+\fB\-\-best\fR
+and
+\fB\-\-worst\fR
+lists cannot be printed as SQL statements\&.
+      OPTIONS
+.PP
+\fBmysqlindexcheck\fR
+accepts the following command\-line options:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-help
+.sp
+Display a help message and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-best[=<N>]
+.sp
+If
+\fB\-\-stats\fR
+is given, limit index statistics to the best
+\fIN\fR
+indexes\&. The default value of
+\fIN\fR
+is 5 if omitted\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-format=<index_format>, \-f<index_format>
+.sp
+Specify the index list display format for output produced by
+\fB\-\-stats\fR\&. Permitted format values are
+\fBgrid\fR,
+\fBcsv\fR,
+\fBtab\fR,
+\fBsql\fR, and
+\fBvertical\fR\&. The default is
+\fBgrid\fR\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-server=<source>
+.sp
+Connection information for the server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-show\-drops, \-d
+.sp
+Display
+\fBDROP\fR
+statements for dropping indexes\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-show\-indexes, \-i
+.sp
+Display indexes for each table\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-skip, \-s
+.sp
+Skip tables that do not exist\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-stats
+.sp
+Show index performance statistics\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-verbose, \-v
+.sp
+Specify how much information to display\&. Use this option multiple times to increase the amount of information\&. For example,
+\fB\-v\fR
+= verbose,
+\fB\-vv\fR
+= more verbose,
+\fB\-vvv\fR
+= debug\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-version
+.sp
+Display version information and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-worst[=<N>]
+.sp
+If
+\fB\-\-stats\fR
+is given, limit index statistics to the worst
+\fIN\fR
+indexes\&. The default value of
+\fIN\fR
+is 5 if omitted\&.
+.RE
+      NOTES
+.PP
+You must provide connection parameters (user, host, password, and so forth) for an account that has the appropriate privileges to read all objects accessed during the operation\&.
+.PP
+For the
+\fB\-\-format\fR
+option, the permitted values are not case sensitive\&. In addition, values may be specified as any unambiguous prefix of a valid value\&. For example,
+\fB\-\-format=g\fR
+specifies the grid format\&. An error occurs if a prefix matches more than one valid value\&.
+.PP
+The path to the MySQL client tools should be included in the PATH environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the my_print_defaults tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
+      EXAMPLES
+.PP
+To check all tables in the
+employees
+database on the local server to see the possible redundant and duplicate indexes, use this command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ mysqlindexcheck \-\-server=root@localhost employees
+# Source on localhost: \&.\&.\&. connected\&.
+# The following indexes are duplicates or redundant \e
+  for table employees\&.dept_emp:
+#
+CREATE INDEX emp_no ON employees\&.dept_emp (emp_no) USING BTREE
+#     may be redundant or duplicate of:
+ALTER TABLE employees\&.dept_emp ADD PRIMARY KEY (emp_no, dept_no)
+# The following indexes are duplicates or redundant \e
+  for table employees\&.dept_manager:
+#
+CREATE INDEX emp_no ON employees\&.dept_manager (emp_no) USING BTREE
+#     may be redundant or duplicate of:
+ALTER TABLE employees\&.dept_manager ADD PRIMARY KEY (emp_no, dept_no)
+# The following indexes are duplicates or redundant \e
+  for table employees\&.salaries:
+#
+CREATE INDEX emp_no ON employees\&.salaries (emp_no) USING BTREE
+#     may be redundant or duplicate of:
+ALTER TABLE employees\&.salaries ADD PRIMARY KEY (emp_no, from_date)
+# The following indexes are duplicates or redundant \e
+  for table employees\&.titles:
+#
+CREATE INDEX emp_no ON employees\&.titles (emp_no) USING BTREE
+#     may be redundant or duplicate of:
+ALTER TABLE employees\&.titles ADD PRIMARY KEY (emp_no, title, from_date)
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COPYRIGHT"
+.br
+.SH "SEE ALSO"
+For more information, please refer to the MySQL Utilities section
+of the MySQL Workbench Reference Manual, which is available online
+at http://dev.mysql.com/doc/workbench/en/.
+.SH AUTHOR
+Oracle Corporation (http://dev.mysql.com/).

@@ -1,0 +1,353 @@
+'\" t
+.\"     Title: \fBmysqluserclone\fR
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 10/03/2013
+.\"    Manual: MySQL Utilities
+.\"    Source: MySQL 1.4.0
+.\"  Language: English
+.\"
+.TH "\FBMYSQLUSERCLONE\FR" "1" "10/03/2013" "MySQL 1\&.4\&.0" "MySQL Utilities"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.\" mysqluserclone
+.\" utilities: mysqluserclone
+.\" scripts
+.SH "NAME"
+mysqluserclone \- Clone Existing User to Create New User
+.SH "SYNOPSIS"
+.HP \w'\fBmysqluserclone\ [\fR\fB\fIoptions\fR\fR\fB]\ \fR\fB\fIbase_user\fR\fR\fB\ \fR\fB\fInew_user\fR\fR\fB[\fR\fB\fI:password\fR\fR\fB][\fR\fB\fI@host_name\fR\fR\fB]\ \&.\&.\&.\fR\ 'u
+\fBmysqluserclone [\fR\fB\fIoptions\fR\fR\fB] \fR\fB\fIbase_user\fR\fR\fB \fR\fB\fInew_user\fR\fR\fB[\fR\fB\fI:password\fR\fR\fB][\fR\fB\fI@host_name\fR\fR\fB] \&.\&.\&.\fR
+.SH "DESCRIPTION"
+.PP
+This utility uses an existing MySQL user account on one server as a template, and clones it to create one or more new user accounts with the same privileges as the original user\&. The new users can be created on the original server or a different server\&.
+.PP
+To list users for a server, specify the
+\fB\-\-list\fR
+option\&. This prints a list of the users on the source (no destination is needed)\&. To control how to display list output, use one of the following values with the
+\fB\-\-format\fR
+option:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBgrid\fR
+(default)
+.sp
+Display output in grid or table format like that of the
+\fBmysql\fR
+monitor\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBcsv\fR
+.sp
+Display output in comma\-separated values format\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBtab\fR
+.sp
+Display output in tab\-separated format\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBvertical\fR
+.sp
+Display output in single\-column format like that of the
+\eG
+command for the
+\fBmysql\fR
+monitor\&.
+.RE
+      OPTIONS
+.PP
+\fBmysqluserclone\fR
+accepts the following command\-line options:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-help
+.sp
+Display a help message and exit\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-destination=<destination>
+.sp
+Connection information for the destination server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>] or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-dump, \-d
+.sp
+Display the
+\fBGRANT\fR
+statements to create the account rather than executing them\&. In this case, the utility does not connect to the destination server and no
+\fB\-\-destination\fR
+option is needed\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-format=<list_format>, \-f<list_format>
+.sp
+Specify the user display format\&. Permitted format values are
+\fBgrid\fR,
+\fBcsv\fR,
+\fBtab\fR, and
+\fBvertical\fR\&. The default is
+\fBgrid\fR\&. This option is valid only if
+\fB\-\-list\fR
+is given\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-force
+.sp
+Drop the new user account if it exists before creating the new account\&. Without this option, it is an error to try to create an account that already exists\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-include\-global\-privileges
+.sp
+Include privileges that match
+base_user@%
+as well as
+base_user@host\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-list
+.sp
+List all users on the source server\&. With this option, a destination server need not be specified\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-quiet, \-q
+.sp
+Turn off all messages for quiet execution\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-source=<source>
+.sp
+Connection information for the source server in the format: <\fIuser\fR>[:<\fIpasswd\fR>]@<\fIhost\fR>[:<\fIport\fR>][:<\fIsocket\fR>]or <\fIlogin\-path\fR>[:<\fIport\fR>][:<\fIsocket\fR>]\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-verbose, \-v
+.sp
+Specify how much information to display\&. Use this option multiple times to increase the amount of information\&. For example,
+\fB\-v\fR
+= verbose,
+\fB\-vv\fR
+= more verbose,
+\fB\-vvv\fR
+= debug\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\-\-version
+.sp
+Display version information and exit\&.
+.RE
+      NOTES
+.PP
+You must provide connection parameters (user, host, password, and so forth) for an account that has the appropriate privileges to access all objects in the operation\&.
+.PP
+The account used to connect to the source server must have privileges to read the
+\fBmysql\fR
+database\&.
+.PP
+The account used to connect to the destination server must have privileges to execute
+\fBCREATE USER\fR
+(and
+\fBDROP USER\fR
+if the
+\fB\-\-force\fR
+option is given), and privileges to execute
+\fBGRANT\fR
+for all privileges to be granted to the new accounts\&.
+.PP
+For the
+\fB\-\-format\fR
+option, the permitted values are not case sensitive\&. In addition, values may be specified as any unambiguous prefix of a valid value\&. For example,
+\fB\-\-format=g\fR
+specifies the grid format\&. An error occurs if a prefix matches more than one valid value\&.
+.PP
+The path to the MySQL client tools should be included in the PATH environment variable in order to use the authentication mechanism with login\-paths\&. This will allow the utility to use the my_print_defaults tools which is required to read the login\-path values from the login configuration file (\&.mylogin\&.cnf)\&.
+      EXAMPLES
+.PP
+To clone
+joe
+as
+sam
+and
+sally
+with passwords and logging in as
+root
+on the local machine, use this command:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ mysqluserclone \-\-source=root@localhost \e
+  \-\-destination=root@localhost \e
+  joe@localhost sam:secret1@localhost sally:secret2@localhost
+# Source on localhost: \&.\&.\&. connected\&.
+# Destination on localhost: \&.\&.\&. connected\&.
+# Cloning 2 users\&.\&.\&.
+# Cloning joe@localhost to user sam:secret1@localhost
+# Cloning joe@localhost to user sally:secret2@localhost
+# \&.\&.\&.done\&.
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The following command shows all users on the local server in the most verbose output in CSV format:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ mysqluserclone \-\-source=root@localhost \-\-list \-\-format=csv \-vvv
+# Source on localhost: \&.\&.\&. connected\&.
+user,host,database
+joe,localhost,util_test
+rpl,localhost,
+sally,localhost,util_test
+sam,localhost,util_test
+joe,user,util_test
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COPYRIGHT"
+.br
+.SH "SEE ALSO"
+For more information, please refer to the MySQL Utilities section
+of the MySQL Workbench Reference Manual, which is available online
+at http://dev.mysql.com/doc/workbench/en/.
+.SH AUTHOR
+Oracle Corporation (http://dev.mysql.com/).
